@@ -26,34 +26,27 @@ exports.chifoumi = (socket) => {
             case '0':
                 Players[indexPlayer].choice = 'Pierre';
                 Players[indexPlayer].status = true;
-                getChoicePlayer (socket, numberPlayer, Players[indexPlayer].choice)
+                getChoicePlayer(socket, numberPlayer, Players[indexPlayer].choice)
                 break;
             case '1':
                 Players[indexPlayer].choice = 'Papier';
                 Players[indexPlayer].status = true;
-                getChoicePlayer (socket, numberPlayer, Players[indexPlayer].choice)
+                getChoicePlayer(socket, numberPlayer, Players[indexPlayer].choice)
                 break;
             case '2':
                 Players[indexPlayer].choice = 'Ciseaux';
                 Players[indexPlayer].status = true;
-                getChoicePlayer (socket, numberPlayer, Players[indexPlayer].choice)
+                getChoicePlayer(socket, numberPlayer, Players[indexPlayer].choice)
                 break;
             case 'result':
                 console.log(Players)
 
-                while( !Players[0].status &&  !Players[1].status){
-                    if(compteur = 300) {
-                        break
-                    }
-                    compteur +=1;
-                }
-
-                if(count==2 && Players[0].status &&  Players[1].status){
+                if(count==1 && Players[0].status &&  Players[1].status){
 
                     if (Players[0].choice == 'Valeur erronée' || Players[1].choice == 'Valeur erronée') {
                         return socket.write(`Une valeur erronée a été saisie pendant la durée du jeu`);
 
-                    } else if (Players[0].choice == 'Pierre' && Players[1].choice == 'Ciseaux') {
+                    } else if ((Players[0].choice).localeCompare('Pierre')==0 && Players[1].choice == 'Ciseaux') {
                         return socket.write(`Joueur ${Players.indexOf(Players[0]) + 1} vous avez gagné`);
 
                     } else if (Players[0].choice == 'Ciseaux' && Players[1].choice == 'Papier') {
@@ -66,15 +59,12 @@ exports.chifoumi = (socket) => {
                         return socket.write(`Joueur ${Players.indexOf(Players[0]) + 1} Egalité`);
                     }
                     else {
-                        socket.write(`Joueur ${Players.indexOf(Players[1]) + 1} vous avez gagné`);
+                        socket.write(`Le joueur ${Players.indexOf(Players[1]) + 1}, vous avez gagné.`);
                     }
-
-
-
                 }
-
+                break
             default:
-                socket.write(`Valeur erronée` );
+                socket.write(`Default : Valeur erronée` );
                 break;
         }
     }); 
