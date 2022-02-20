@@ -4,7 +4,7 @@ const gameInProgress = new Client();
 /*
 * postMessage  -> post the message to the server 
 * getMessage   -> get the message to the server
-* aswerUser    -> get the answer of the user
+* answerUser    -> get the answer of the user
 */
 
 gameInProgress.postMessage('Chifoumi'.toLowerCase())
@@ -15,13 +15,13 @@ gameInProgress.postMessage('Chifoumi'.toLowerCase())
     .then((data)=>{
         return gameInProgress.postMessage(data);
     })
-    .then((data) => { 
+    .then((data) => {
         gameInProgress.getMessage(data);
-        return gameInProgress.postMessage('finish'.toLowerCase()); 
+        return gameInProgress.postMessage('result'.toLowerCase());
     })
-    .then((data) => { 
+    .then((data) => {
         gameInProgress.getMessage(data)
-        return gameInProgress.postMessage('exit'.toLowerCase()); 
+    //    return gameInProgress.postMessage('exit'.toLowerCase());
     })
     .catch((err) => console.error(err));  
    

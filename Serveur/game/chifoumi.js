@@ -1,70 +1,78 @@
-const Players = [
-    {    
-        id : undefined,
-        Score: 0,
-        Choice: "",
-        Finish : false,
-        Status: false,
-    },
-    {
-        id : undefined,
-        Score: 0,
-        Choice: "",
-        Finish : false,
-        Status: false,
-    }
-];
-let idPlayer = undefined;
-let numberPlayer = undefined;
+const Player = require('./player.js');
+const Players = []
+let compteur = 0;
 
 exports.chifoumi = (socket) => {
     
     const clientAddress = `${socket.remoteAddress}:${socket.remotePort}`; 
     console.log(`new client connected: ${clientAddress}`); 
-    
-    socket.on('data', (data) => { 
-        console.log(`Client ${clientAddress}: ${data}`);
-        console.log(socket.remotePort);
-        idPlayer= Number(getIdPlayer(socket.remotePort)); 
-        console.log(idPlayer);
+
+    const count = Players.length;
+    while (Players.length == count){
+        Players.push(player= new Player(socket.remotePort));
+    }
+
+    socket.on('data', (data) => {
+        indexPlayer= Number(getIndexPlayer(socket.remotePort));
+        console.log(indexPlayer);
 
         switch (data.toString('utf-8')) {
             case 'chifoumi':
-                idPlayer= Number(getIdPlayer(socket.remotePort)); 
-                numberPlayer = idPlayer +1;
+                indexPlayer= Number(getIndexPlayer(socket.remotePort));
+
+                numberPlayer = indexPlayer +1;
                 socket.write(`Bienvenue au jeu pierre, papier, ciseaux, \nPour jouer rien de plus simple, il vous suffit de saisir \n: Pierre(0) | Papier(1) | Ciseaux(2) | Quitter (exit) \nCe jeu joue entre 2 personnes \n Vous êtes le joueur ${numberPlayer}`);  
                 break;
             case '0':
-                Players[idPlayer].Choice = 'Pierre';
-                Players[idPlayer].Finish = true;
-                getChoicePlayer (socket, numberPlayer, Players[idPlayer].Choice)
+                Players[indexPlayer].choice = 'Pierre';
+                Players[indexPlayer].status = true;
+                getChoicePlayer (socket, numberPlayer, Players[indexPlayer].choice)
                 break;
             case '1':
-                Players[idPlayer].Choice = 'Papier';
-                Players[idPlayer].Finish = true;
-                getChoicePlayer (socket, numberPlayer, Players[idPlayer].Choice)
+                Players[indexPlayer].choice = 'Papier';
+                Players[indexPlayer].status = true;
+                getChoicePlayer (socket, numberPlayer, Players[indexPlayer].choice)
                 break;
             case '2':
-                Players[idPlayer].Choice = 'Ciseaux';
-                Players[idPlayer].Finish = true;
-                getChoicePlayer (socket, numberPlayer, Players[idPlayer].Choice)
+                Players[indexPlayer].choice = 'Ciseaux';
+                Players[indexPlayer].status = true;
+                getChoicePlayer (socket, numberPlayer, Players[indexPlayer].choice)
                 break;
             case 'result':
-                while (!Players[0].Finish && !Players[1].Finish ) {
-                    
+                console.log(Players)
+
+                while( !Players[0].status &&  !Players[1].status){
+                    if(compteur = 300) {
+                        break
+                    }
+                    compteur +=1;
                 }
-                if (Players[0].Choice == 'Valeur erronée' || Players[1].Choice == 'Valeur erronée') {
-                    return socket.write(`Une valeur erronée a été saisie pendant la durée du jeu` );
-                } else if (Players[0].Choice == 'Pierre' && Players[1].Choice == 'Ciseaux'){
-                    return socket.write(`Joueur ${Players.indexOf(Players[0]) + 1} vous avez gagné` );
-                } else if (Players[0].Choice == 'Ciseaux' && Players[1].Choice == 'Papier') {
-                    return socket.write(`Joueur ${Players.indexOf(Players[0]) + 1} vous avez gagné` );
-                } else if (Players[0].Choice == 'Papier' && Players[1].Choice == 'Pierre') {
-                    return socket.write(`Joueur ${Players.indexOf(Players[0]) + 1} vous avez gagné` );
-                } else { 
-                    socket.write(`Joueur ${Players.indexOf(Players[1]) + 1} vous avez gagné` );
+
+                if(count==2 && Players[0].status &&  Players[1].status){
+
+                    if (Players[0].choice == 'Valeur erronée' || Players[1].choice == 'Valeur erronée') {
+                        return socket.write(`Une valeur erronée a été saisie pendant la durée du jeu`);
+
+                    } else if (Players[0].choice == 'Pierre' && Players[1].choice == 'Ciseaux') {
+                        return socket.write(`Joueur ${Players.indexOf(Players[0]) + 1} vous avez gagné`);
+
+                    } else if (Players[0].choice == 'Ciseaux' && Players[1].choice == 'Papier') {
+                        return socket.write(`Joueur ${Players.indexOf(Players[0]) + 1} vous avez gagné`);
+
+                    } else if ((Players[0].choice).localeCompare('Papier') ==0  && (Players[1].choice).localeCompare('Pierre')==0 ){
+                        return socket.write(`Joueur ${Players.indexOf(Players[0]) + 1} vous avez gagné`);
+
+                    } else if (Players[0].choice == Players[1].choice) {
+                        return socket.write(`Joueur ${Players.indexOf(Players[0]) + 1} Egalité`);
+                    }
+                    else {
+                        socket.write(`Joueur ${Players.indexOf(Players[1]) + 1} vous avez gagné`);
+                    }
+
+
+
                 }
-            break;
+
             default:
                 socket.write(`Valeur erronée` );
                 break;
@@ -76,7 +84,7 @@ function getChoicePlayer(socket,numberPlayer, choice){
     socket.write(`Joueur ${numberPlayer}, vous avez choisi : ${choice} `);
     
 }
-function getIdPlayer(IdClient) {
+function getIndexPlayer(IdClient) {
     const player = Object.keys(Players);
     for (key of player){
         if(Players[key].id === IdClient){
